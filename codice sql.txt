@@ -1,0 +1,264 @@
+CREATE TABLE Supermercati(
+indirizzo VARCHAR (20) PRIMARY KEY,
+OAord TIME NOT NULL,
+OAstraord TIME NOT NULL	
+);
+
+CREATE TABLE Reparti(
+nome VARCHAR (20) NOT NULL,
+supermercato VARCHAR (20) NOT NULL,
+PRIMARY KEY (nome,supermercato),
+FOREIGN KEY (supermercato) REFERENCES Supermercati(indirizzo) 
+ON DELETE CASCADE
+ON UPDATE CASCADE
+);
+CREATE TABLE Impiegati
+(codFiscale VARCHAR (16) NOT NULL ,
+reparto VARCHAR (20) NOT NULL,
+supermercato VARCHAR (20) NOT NULL,
+mansione VARCHAR (20) NOT NULL,
+datanascita DATE NOT NULL,
+email VARCHAR (20) NOT NULL,
+dataassunzione DATE NOT NULL,
+livello DECIMAL (2) NOT NULL DEFAULT 0 ,
+indirizzo VARCHAR (20) NOT NULL,
+nome VARCHAR (20) NOT NULL,
+cognome VARCHAR (20) NOT NULL,
+tel VARCHAR (20) NOT NULL,
+UNIQUE(email),
+UNIQUE (codFiscale),
+UNIQUE(tel),
+PRIMARY KEY (codFiscale,reparto,supermercato),
+FOREIGN KEY (reparto,supermercato) REFERENCES Reparti(nome,supermercato) ON DELETE CASCADE
+                         ON UPDATE CASCADE
+);
+CREATE TABLE Responsabili
+(codFiscale VARCHAR (16) PRIMARY KEY,
+reparto VARCHAR (20) NOT NULL,
+supermercato VARCHAR (20) NOT NULL,
+UNIQUE(reparto,supermercato),
+FOREIGN KEY (codFiscale,reparto,supermercato) REFERENCES Impiegati(codFiscale,reparto,supermercato)
+ON DELETE CASCADE
+                         ON UPDATE CASCADE
+);
+CREATE TABLE turnisettimanali(
+codFiscImpiegato VARCHAR (16) NOT NULL,
+reparto VARCHAR (20) NOT NULL,
+supermercato VARCHAR (20) NOT NULL,
+GiornoInizioTurno DATE NOT NULL,
+OrarioInizioTurno TIME NOT NULL,
+GiornoFineTurno DATE NOT NULL,
+OrarioFineTurno TIME NOT NULL,
+PRIMARY KEY (codFiscImpiegato,GiornoInizioTurno,OrarioInizioTurno),
+FOREIGN KEY (codFiscImpiegato,reparto,supermercato) REFERENCES impiegati(codFiscale,reparto,supermercato)
+ON DELETE CASCADE
+                         ON UPDATE CASCADE
+);
+CREATE TABLE Fornitori(
+partitaiva VARCHAR (20) PRIMARY KEY,
+ragSoc VARCHAR (20) NOT NULL,
+email VARCHAR (20) NOT NULL,
+modPag VARCHAR (20) NOT NULL,
+tel VARCHAR (20) NOT NULL,
+indirizzo VARCHAR (20) NOT NULL,
+UNIQUE(partitaiva),
+UNIQUE(ragSoc),
+UNIQUE(tel),
+UNIQUE(email)	
+);
+
+CREATE TABLE Prodotti(
+codiceinternosuper VARCHAR(20) PRIMARY KEY,
+nome VARCHAR (20) NOT NULL,
+categoria VARCHAR (20) NOT NULL,
+prezzoAP DECIMAL (10,2) NOT NULL,
+scadenza DATE NOT NULL,
+qtaMag DECIMAL (7)NOT NULL DEFAULT 0,
+sogliariordino DECIMAL (7) NOT NULL DEFAULT 100,
+puntiottenibili DECIMAL (5) NOT NULL DEFAULT 0,
+prezzoIng DECIMAL (10,2),
+codRif VARCHAR (20),
+nomeReparto VARCHAR (20) NOT NULL,
+nomeSupermercato VARCHAR (20) NOT NULL,
+UNIQUE(nome),
+FOREIGN KEY (nomeReparto,nomeSupermercato) REFERENCES Reparti(nome,supermercato)
+ON DELETE CASCADE
+                         ON UPDATE CASCADE,
+	FOREIGN KEY (codrif) REFERENCES fornitori(partitaiva)
+ON DELETE CASCADE
+                         ON UPDATE CASCADE
+);
+CREATE TABLE Assemblati(
+composto VARCHAR (20) NOT NULL,
+componente VARCHAR (20) NOT NULL,
+quantità DECIMAL (5) DEFAULT 0,
+PRIMARY KEY(composto,componente),
+FOREIGN KEY (composto) REFERENCES Prodotti(codiceinternosuper)
+ON DELETE CASCADE
+                         ON UPDATE CASCADE,
+FOREIGN KEY (componente) REFERENCES Prodotti(codiceinternosuper)
+ON DELETE CASCADE
+                         ON UPDATE CASCADE
+);
+
+
+CREATE TABLE Ordini(
+codordine DECIMAL (20) NOT NULL,
+prodotto VARCHAR (20) NOT NULL,
+dataordine DATE NOT NULL,
+tempoconsegna DATE NOT NULL,
+fornitore VARCHAR (20) NOT NULL,
+quantità DECIMAL (5) DEFAULT 0,
+UNIQUE(codordine),
+PRIMARY KEY (prodotto,codordine,fornitore),
+FOREIGN KEY (prodotto) REFERENCES Prodotti(codiceinternosuper)
+ON DELETE CASCADE
+                         ON UPDATE CASCADE,
+FOREIGN KEY (fornitore) REFERENCES Fornitori(partitaiva)
+ON DELETE CASCADE
+                         ON UPDATE CASCADE
+);
+CREATE TABLE Clienti(
+codTessera VARCHAR (20) PRIMARY KEY,
+punti DECIMAL (5) DEFAULT 0,
+email VARCHAR (20) NOT NULL,
+dataNascit DATE NOT NULL,
+indirizzo VARCHAR (20) NOT NULL,
+nome VARCHAR (20) NOT NULL,
+cognome VARCHAR (20) NOT NULL,
+telefono VARCHAR (20) NOT NULL,
+codFisc VARCHAR (16) NOT NULL,
+UNIQUE (codFisc),
+UNIQUE(telefono),
+UNIQUE(email)	
+);
+CREATE TABLE Acquisti(
+prodotto VARCHAR (20) NOT NULL,
+codScontrino DECIMAL (10) PRIMARY KEY,
+cliente VARCHAR (20),
+dataacquisto DATE NOT NULL DEFAULT CURRENT_DATE,
+quantità DECIMAL (5) NOT NULL DEFAULT 0,
+prezzo DECIMAL (10,2) NOT NULL,
+FOREIGN KEY (prodotto) REFERENCES Prodotti(codiceinternosuper)
+ON DELETE CASCADE
+                         ON UPDATE CASCADE,
+FOREIGN KEY (cliente) REFERENCES Clienti(codTessera)
+ON DELETE CASCADE
+                         ON UPDATE CASCADE
+);
+CREATE TABLE Premi(
+codPremio VARCHAR (20)NOT NULL,
+nome VARCHAR (20) NOT NULL,
+punti DECIMAL (10) NOT NULL,
+cliente VARCHAR(20),
+UNIQUE(codpremio,nome),
+PRIMARY KEY(codpremio),
+UNIQUE(nome),
+	FOREIGN KEY (cliente) REFERENCES Clienti(codTessera)
+ON DELETE CASCADE
+                         ON UPDATE CASCADE
+);
+
+
+
+INSERT INTO Supermercati VALUES ('via 1° Maggio','08:00:00','21:00:00');
+INSERT INTO Supermercati VALUES ('via Pavese 10','08:00:00','06:00:00');
+
+INSERT INTO Reparti VALUES ('frutta e verdura','via 1° Maggio');
+INSERT INTO Reparti VALUES ('gastronomia','via 1° Maggio');
+INSERT INTO Reparti VALUES ('panetteria','via 1° Maggio');
+INSERT INTO Reparti VALUES ('sergelati','via 1° Maggio');
+INSERT INTO Reparti VALUES ('cancelleria','via 1° Maggio');
+INSERT INTO Reparti VALUES ('macelleria','via 1° Maggio');
+INSERT INTO Reparti VALUES ('cancelleria','via Pavese 10');
+INSERT INTO Reparti VALUES ('macelleria','via Pavese 10');
+INSERT INTO Reparti VALUES ('frutta e verdura','via Pavese 10');
+INSERT INTO Reparti VALUES ('gastronomia','via Pavese 10');
+
+INSERT INTO Impiegati VALUES 
+('55','cancelleria','via 1° Maggio','sguattero','1998-05-01','gino2@g','2020-01-01','8','via gino','teto','g','666');
+INSERT INTO Impiegati VALUES 
+('556','cancelleria','via 1° Maggio','lavapiatti','1998-05-01','gino2@gu','2020-01-01','8','via gino','teo','g','667');
+INSERT INTO Impiegati VALUES 
+('559','cancelleria','via 1° Maggio','lavapiatti','1998-05-01','gino2@guu','2020-01-01','8','via gino','teocava','g','669');
+INSERT INTO Impiegati VALUES 
+('1','cancelleria','via 1° Maggio','rivenditore','1998-05-01','gino2@gianni','2020-02-01','8','via gino','rocca','g','1234');
+INSERT INTO Impiegati VALUES 
+('2','cancelleria','via 1° Maggio','lavapiatti','1998-05-01','gino2@gullo','2020-03-01','2','via gino','oreste','g','657');
+INSERT INTO Impiegati VALUES 
+('3','cancelleria','via 1° Maggio','aiutante','1998-05-01','gino2@guuri','2020-04-01','1','via gino','michi','g','009');
+
+INSERT INTO responsabili VALUES ('559','cancelleria','via 1° Maggio');
+
+INSERT INTO turnisettimanali VALUES
+('556','cancelleria','via 1° Maggio','2020-06-06','08:00:00','2020-06-06','16:00:00');
+INSERT INTO turnisettimanali VALUES
+('559','cancelleria','via 1° Maggio','2020-06-07','08:00:00','2020-06-07','16:00:00');
+INSERT INTO turnisettimanali VALUES
+('1','cancelleria','via 1° Maggio','2020-06-07','08:00:00','2020-06-07','16:00:00');
+
+INSERT INTO Fornitori VALUES
+('22','Ivano srl','ivano@divano.com','bonifico','33098','via crisantemi');
+INSERT INTO Fornitori VALUES
+('25','Cancelleria srl','Claudio@divano.com','assegno','3309888','via Verdi');
+
+INSERT INTO prodotti
+VALUES ('1','Bistecca','carne rossa','3.5','2020-12-11','700','100',0,'1.5','25','macelleria','via 1° Maggio');
+INSERT INTO prodotti
+VALUES ('2','Pollo','carne bianca','3.5','2020-12-11','700','100',0,'0.5','25','macelleria','via 1° Maggio');
+INSERT INTO prodotti
+VALUES ('3','Salsiccia di Varzi','salumi','3.7','2020-12-11','700','100',0,'1.6','25','macelleria','via 1° Maggio');
+INSERT INTO prodotti
+VALUES ('4','Hamburgher soia','vegano','3.9','2020-12-11','10','100',0,'1.7','22','macelleria','via 1° Maggio');
+INSERT INTO prodotti
+VALUES ('5','Libro Pimpa','scuola','3.8','2020-12-11','50','100',0,'1.8','22','cancelleria','via 1° Maggio');
+INSERT INTO prodotti
+VALUES ('6','Biro','scuola','3.1','2020-12-11','700','100',0,'1.9','22','cancelleria','via 1° Maggio');
+INSERT INTO prodotti
+VALUES ('7','cestone natale','cestone','13.1','2020-12-11','700','100',0,null,null,'macelleria','via 1° Maggio');
+INSERT INTO prodotti
+VALUES ('8','Bicestone natale','cestone','26.12','2020-12-11','700','100',0,null,null,'macelleria','via 1° Maggio');
+
+
+INSERT INTO Assemblati VALUES ('7','1','6');
+INSERT INTO Assemblati VALUES ('7','2','2');
+INSERT INTO Assemblati VALUES ('7','3','69');
+INSERT INTO Assemblati VALUES ('8','7','2');
+
+INSERT INTO Ordini VALUES ('1','1','2020-11-01','2020-11-05','22','202');
+INSERT INTO Ordini VALUES ('2','2','2020-11-01','2020-11-05','22','202');
+INSERT INTO Ordini VALUES ('3','2','2020-11-01','2020-11-05','25','202');
+insert into ordini values ('4','5','2020-06-01','2020-07-05','22','200' );
+
+INSERT INTO Clienti VALUES ('1','0','utente1@gmi','1998-01-05','via gino 22','Mario','g','8887','888');
+INSERT INTO Clienti VALUES ('2','0','utente1@gmik','1998-01-05','via gino 22','Mario','g','88877','8888');
+
+INSERT INTO Acquisti (prodotto,codScontrino,cliente,quantità,prezzo) VALUES('1','1','2','1','3.5');
+INSERT INTO Acquisti  VALUES('1','2','2','2020-05-12','1','3.5');
+INSERT INTO Acquisti  VALUES('1','3','2','2020-05-12','1','3.5');
+INSERT INTO Acquisti  VALUES('1','4','2','2020-06-12','1','3.5');
+INSERT INTO Acquisti  VALUES('1','5','2','2020-06-12','1','3.5');
+INSERT INTO Acquisti  VALUES('1','6','2','2020-06-12','1','3.5');
+INSERT INTO Acquisti  VALUES('1','7','2','2020-06-12','1','3.5');
+INSERT INTO Acquisti  VALUES('1','8','2','2020-06-12','1','3.5');
+INSERT INTO Acquisti  VALUES('1','9','2','2020-06-12','1','3.5');
+
+INSERT INTO premi VALUES('1','Tazza','5','1');
+INSERT INTO premi VALUES('2','Tazzona','5','2');
+INSERT INTO premi VALUES('3','Tazzina','5','1');
+INSERT INTO premi(codpremio,nome,punti) VALUES('4','Tazzetta','5');
+
+
+//prodotti assemblati con altri prodotti assemblati
+select u.nome,p.nome
+from prodotti u,assemblati,prodotti p
+where p.codrif is null and u.codiceinternosuper=composto and componente=p.codiceinternosuper
+
+//vendite macelleria 
+select * 
+from acquisti join prodotti on acquisti.prodotto=prodotti.codiceinternosuper 
+where prodotti.nomereparto='macelleria' and dataacquisto='2020-05-12'
+
+//prodotti reparto cancelleria da riordinare
+select * from prodotti where nomereparto='cancelleria' and qtamag<sogliariordino
+
