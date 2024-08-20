@@ -1,4 +1,3 @@
-# Catena di supermercati
+# Database di una catena di supermercati
 
-Il progetto è la realizzazione di un database per una catena di supermercati per l'esame di base di dati e web. 
-
+Questo progetto universitario è finalizzato alla realizzazione di una versione semplificata per la gestione di una catena di supermercati appartenenti alla stessa città.
